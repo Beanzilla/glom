@@ -1,4 +1,4 @@
-module red-green/glom
+module github.com/beanzilla/glom
 
 go 1.17
 

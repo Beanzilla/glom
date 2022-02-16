@@ -56,7 +56,7 @@ func TestGetPossible(t *testing.T) {
 	data = append(data, "Three")
 	data = append(data, "Four")
 
-	result := getPossible(data)
+	result := GetPossible(data)
 	if len(result) != len(data) {
 		t.Errorf("Expected even size, %d != %d", len(result), len(data))
 	}
@@ -243,5 +243,118 @@ func TestEdgeCasesGlom(t *testing.T) {
 	_, err2 := Glom(data, "part2.3")
 	if err2 != nil {
 		t.Errorf("Unexpected Error (part2.3 = 'Dog'): %v", err2)
+	}
+}
+
+func TestTypeConversions(t *testing.T) {
+	// This is just a generic test, nothing fancy
+	data := make(map[string]interface{})
+
+	lvl2 := make(map[string]interface{})
+	lvl2["Duck"] = "Quack"
+	lvl2["Cheese"] = 6
+	lvl2["Mouse"] = true
+	lvl2["Gravity"] = 9.81
+	data["part1"] = lvl2
+
+	var lvl1 []interface{}
+	lvl1 = append(lvl1, "Pig")
+	lvl1 = append(lvl1, "Chicken")
+	lvl1 = append(lvl1, "Cow")
+	lvl1 = append(lvl1, "Dog")
+	lvl1 = append(lvl1, "Cat")
+	lvl1 = append(lvl1, "Horse")
+	lvl1 = append(lvl1, true)
+	lvl1 = append(lvl1, 42)
+	data["part2"] = lvl1
+
+	// Part 1/6: Attempt to convert part2 a slice into a string (invalid)
+	p1, err := Glom(data, "part2")
+	if err != nil {
+		t.Errorf("Unexpected error, expected part2 []interface{}, got %v", err)
+	} else {
+		// Now the real test
+		_, err := String(p1)
+		if err == nil {
+			t.Errorf("Expected error, got a value")
+		}
+	}
+
+	// Part 2/6: Converting part2.1 == "Chicken" to string
+	p2, err := Glom(data, "part2.1")
+	if err != nil {
+		t.Errorf("Unexpected error, expected part2.1 interface{}, got %v", err)
+	} else {
+		// Note, p2 is still an interface, let's test converting it to a string
+		d1, err := String(p2)
+		if err != nil {
+			t.Errorf("Unexpected error, expected to convert interface{} to string, got %v", err)
+		} else {
+			// Compare
+			if d1 != "Chicken" {
+				t.Errorf("Failed to convert interface{} to string, expected 'Chicken' got '%s'", d1)
+			}
+		}
+	}
+
+	// Part 3/6: Attempt to convert part1 a map[string]interface{} into a int (invalid)
+	p3, err := Glom(data, "part1")
+	if err != nil {
+		t.Errorf("Unexpected error, expected part1 map[string]interface{}, got %v", err)
+	} else {
+		// Now the real test, int convert
+		_, err := Int(p3)
+		if err == nil {
+			t.Errorf("Expected error, got a value")
+		}
+	}
+
+	// Part 4/6: Convert part1.Cheese == 6 to int
+	p4, err := Glom(data, "part1.Cheese")
+	if err != nil {
+		t.Errorf("Unexpected error, expected part1.Cheese interface{}, got %v", err)
+	} else {
+		// Note, p4 is still an interface, let's test converting it to a int
+		d2, err := Int(p4)
+		if err != nil {
+			t.Errorf("Unexpected error, expected to convert interface{} to int, got %v", err)
+		} else {
+			// Compare
+			if d2 != 6 {
+				t.Errorf("Failed to convert interface{} to int, expected 6 got %d", d2)
+			}
+		}
+	}
+
+	// Part 5/6: Attempt to convert part2 a []interface{} into a float64 (invalid)
+	p5, err := Glom(data, "part2")
+	if err != nil {
+		t.Errorf("Unexpected error, expected part2 []interface{}, got %v", err)
+	} else {
+		// Now the test, float64 convert
+		_, err := Float64(p5)
+		if err == nil {
+			t.Errorf("Expected error, got a value")
+		}
+	}
+
+	// Part 6/6: Convert part1.Gravity == 9.81 to float64
+	p6, err := Glom(data, "part1.Gravity")
+	if err != nil {
+		t.Errorf("Unexpected error, expected part1.Gravity interface{}, got %v", err)
+	} else {
+		// Note, p6 is still an interface, let's test converting it to a float64
+		d3, err := Float64(p6)
+		if err != nil {
+			t.Errorf("Unexpected error, expected to convert interface{} to float64, got %v", err)
+		} else {
+			// Compare
+			if d3 != 9.81 {
+				t.Errorf("Failed to convert interface{} to float64, expected 9.81 got %f", d3)
+				// Something is wrong with the Earth's gravitational field!
+				// ...
+				// Or this test is wrong. :)
+			}
+		}
 	}
 }

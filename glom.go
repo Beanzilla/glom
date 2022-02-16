@@ -10,6 +10,7 @@ import (
 )
 
 // Based on sliceToInterface
+// Converts a map[something]something to map[string]interface
 func mapToInterface(data interface{}) (map[string]interface{}, error) {
 	mapV := reflect.ValueOf(data)
 	if mapV.Kind() != reflect.Map {
@@ -29,6 +30,7 @@ func mapToInterface(data interface{}) (map[string]interface{}, error) {
 	return result, nil
 }
 
+// Converts the slice of something into a slice of interface
 // https://gist.github.com/heri16/077282d46ae95d48d430a90fb6accdff
 // I only need the length
 func sliceToInterface(data interface{}) ([]interface{}, error) {
@@ -57,7 +59,8 @@ func sliceToInterface(data interface{}) ([]interface{}, error) {
 	return result, nil
 }
 
-func getPossible(data interface{}) []string {
+// Returns a array/slice of possible choices (e.g. key names, indexs, struct fields made Public)
+func GetPossible(data interface{}) []string {
 	var result []string
 	//fmt.Printf("%v (%v)\r\n", reflect.TypeOf(data).Kind(), reflect.TypeOf(data))
 	//fmt.Println(data)
@@ -79,6 +82,7 @@ func getPossible(data interface{}) []string {
 	return result
 }
 
+// Is what we are asking for a possible option
 func inside(possible []string, target string) bool {
 	for _, val := range possible {
 		if target == val {
@@ -88,8 +92,10 @@ func inside(possible []string, target string) bool {
 	return false
 }
 
+// Returns the next level of the interface
+// Supporting nested data
 func next_level(current_level interface{}, go_to string) (interface{}, error) {
-	if inside(getPossible(current_level), go_to) {
+	if inside(GetPossible(current_level), go_to) {
 		//fmt.Printf("%v (%v)\r\n", reflect.TypeOf(current_level).Kind(), reflect.TypeOf(current_level))
 		switch reflect.TypeOf(current_level).Kind() {
 		case reflect.Map:
@@ -125,6 +131,37 @@ func list_possible(possible []string) []string {
 	return result
 }
 
+// Once you've got a single return type maybe you want it a particular type
+// Returns string
+func String(data interface{}) (string, error) {
+	at := GetPossible(data)
+	if len(at) != 0 {
+		return "", fmt.Errorf("can't convert multiple values to string")
+	}
+	return fmt.Sprintf("%v", data), nil
+}
+
+// Once you've got a single return type maybe you want it a particular type
+// Returns int
+func Int(data interface{}) (int, error) {
+	at := GetPossible(data)
+	if len(at) != 0 {
+		return 0, fmt.Errorf("can't convert multiple values to string")
+	}
+	return data.(int), nil
+}
+
+// Once you've got a single return type maybe you want it a particular type
+// Returns float64
+func Float64(data interface{}) (float64, error) {
+	at := GetPossible(data)
+	if len(at) != 0 {
+		return 0.0, fmt.Errorf("can't convert multiple values to string")
+	}
+	return data.(float64), nil
+}
+
+// The main function, call this to walk your data
 func Glom(data interface{}, path string) (interface{}, error) {
 	complete_path := strings.Split(path, ".")
 	//fmt.Printf("Seeking '%s' will take %d steps\r\n", path, len(complete_path))
@@ -134,8 +171,8 @@ func Glom(data interface{}, path string) (interface{}, error) {
 	for _, hop := range complete_path {
 		//fmt.Printf("current: %v\r\n", currently)
 		//fmt.Printf("Path: '%v'\r\n", strings.Join(path_taken, "."))
-		if hop != "*" && !inside(getPossible(currently), hop) {
-			return nil, fmt.Errorf("failed moving to '%s' from path of '%s', options are %s (%d)", hop, strings.Join(path_taken, "."), strings.Join(list_possible(getPossible(currently)), ", "), len(getPossible(currently)))
+		if hop != "*" && !inside(GetPossible(currently), hop) {
+			return nil, fmt.Errorf("failed moving to '%s' from path of '%s', options are %s (%d)", hop, strings.Join(path_taken, "."), strings.Join(list_possible(GetPossible(currently)), ", "), len(GetPossible(currently)))
 		} else {
 			if hop != "*" {
 				next, err := next_level(currently, hop)

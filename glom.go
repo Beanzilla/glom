@@ -13,10 +13,10 @@ import (
 func mapToInterface(data interface{}) (map[string]interface{}, error) {
 	mapV := reflect.ValueOf(data)
 	if mapV.Kind() != reflect.Map {
-		return nil, fmt.Errorf("Failed to convert %v, given %v type to map[string]interface{}", mapV, reflect.TypeOf(data))
+		return nil, fmt.Errorf("failed to convert %v, given %v type to map[string]interface{}", mapV, reflect.TypeOf(data))
 	}
 	if mapV.IsNil() || !mapV.IsValid() {
-		return nil, fmt.Errorf("Given nil or empty map!")
+		return nil, fmt.Errorf("given nil or empty map")
 	}
 
 	result := make(map[string]interface{})
@@ -40,10 +40,10 @@ func sliceToInterface(data interface{}) ([]interface{}, error) {
 		}
 	}
 	if sliceV.Kind() != reflect.Slice && sliceV.Kind() != reflect.Array {
-		return nil, fmt.Errorf("Failed to convert %v, given %v type to []interface{}", sliceV, reflect.TypeOf(data))
+		return nil, fmt.Errorf("failed to convert %v, given %v type to []interface{}", sliceV, reflect.TypeOf(data))
 	}
 	if sliceV.IsNil() || !sliceV.IsValid() {
-		return nil, fmt.Errorf("Given nil or empty slice!")
+		return nil, fmt.Errorf("given nil or empty slice")
 	}
 
 	length := sliceV.Len()
@@ -114,7 +114,7 @@ func next_level(current_level interface{}, go_to string) (interface{}, error) {
 			return structV.FieldByName(go_to).Interface(), nil
 		}
 	}
-	return nil, fmt.Errorf("Failed moving to '%s' from '%s' (%v)", go_to, current_level, reflect.TypeOf(current_level))
+	return nil, fmt.Errorf("failed moving to '%s' from '%s' (%v)", go_to, current_level, reflect.TypeOf(current_level))
 }
 
 func list_possible(possible []string) []string {
@@ -135,7 +135,7 @@ func Glom(data interface{}, path string) (interface{}, error) {
 		//fmt.Printf("current: %v\r\n", currently)
 		//fmt.Printf("Path: '%v'\r\n", strings.Join(path_taken, "."))
 		if hop != "*" && !inside(getPossible(currently), hop) {
-			return nil, fmt.Errorf("Failed moving to '%s' from path of '%s', options are %s (%d)", hop, strings.Join(path_taken, "."), strings.Join(list_possible(getPossible(currently)), ", "), len(getPossible(currently)))
+			return nil, fmt.Errorf("failed moving to '%s' from path of '%s', options are %s (%d)", hop, strings.Join(path_taken, "."), strings.Join(list_possible(getPossible(currently)), ", "), len(getPossible(currently)))
 		} else {
 			if hop != "*" {
 				next, err := next_level(currently, hop)

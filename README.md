@@ -126,15 +126,15 @@ data["posts"] = posts // Add posts to data
 
 ## Basic Accessing
 
-Python's glom made accessing nested structures a breeze, Glom-Go was built to attempt to do just that just for Go.
+Python's glom made accessing nested structures a breeze, glom was built to attempt to do just that just for Go.
 
 * Just use dot notation for accessing/walking your data. (I.E. `users.Bob.age` would access the 3rd level, and comes with Python's glom error messaging showing exactly where while it walked the data it got lost at/couldn't go)
 * Special star for dot notation. (I.E. to get all the users you could `users` or even `users.*`)
-* Glom-Go can support maps, slices/arrays, and structures (specifically it's fields that are public/exposed), making it rather extensive.
+* glom can support maps, slices/arrays, and structures (specifically it's fields that are public/exposed), making it rather extensive.
 
 ## Under the hood
 
-Glom-Go uses reflect and [structs](https://pkg.go.dev/github.com/fatih/structs) to handle nesting thru various structures.
+glom uses reflect and [structs](https://pkg.go.dev/github.com/fatih/structs) to handle nesting thru various structures.
 
 From `[]interface{}` to `map[string]interface{}` (Even `map[int]interface{}` works).
 

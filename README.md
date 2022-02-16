@@ -4,7 +4,7 @@ This is based on the Python module/package [glom](https://pypi.org/project/glom/
 
 ## Installation
 
-Should be `go get github.com/beanzilla/glom` (Should also require getting [structs](https://pkg.go.dev/github.com/fatih/structs))
+Should be `go get github.com/beanzilla/glom` (Should automatically get [structs](https://pkg.go.dev/github.com/fatih/structs))
 
 ## Basic Example
 
